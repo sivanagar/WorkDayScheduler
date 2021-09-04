@@ -21,7 +21,7 @@ var loadSchedule = function() {
         var saveBtn = $("<div>")
             .addClass("col-1 saveBtn material-icons")
             .attr("data-id",i)
-            .text("save");
+            .html("<i class='far fa-save'></i>");
         timeBlock.append(hour, description,saveBtn);
         
         $(".container").append(timeBlock);
@@ -50,7 +50,6 @@ var auditSchedule = function() {
     $.each(schedule, function(index) {
         $(".description[data-id*="+schedule[index].id+"]").text(schedule[index].text)
     });
-
 }
 
 //current Day display
@@ -78,7 +77,6 @@ $(".time-block").on("click", "p", function()  {
 
 //click on save
 $(".saveBtn").click(function() {
-    
     var id = $(this).attr("data-id");
     var text = $("#"+id)
         .val()
@@ -89,7 +87,6 @@ $(".saveBtn").click(function() {
         .attr("data-id",id)
         .text(text);
             
-   
     var update = ""
     $.each(schedule, function(index) {
         if (schedule[index].id === id) {
@@ -99,16 +96,12 @@ $(".saveBtn").click(function() {
     });
     if (update === ""){
         //save to local storage
-        schedule.push({
-            id: id,
-            text: text
-        })
+        schedule.push({ id: id, text: text})
     }
      //change from textarea to p
      $("#"+id).replaceWith(newDescription);
    
     localStorage.setItem("schedule", JSON.stringify(schedule));
-    
 })
 
 //timer interval that check cevery X min and audit schedule
