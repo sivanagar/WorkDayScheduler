@@ -1,7 +1,6 @@
 var schedule = [];
 
 var loadSchedule = function() {
-    console.log("Loading schedule");
     schedule = JSON.parse(localStorage.getItem("schedule"));
     if (!schedule) {
         schedule = [];
@@ -27,18 +26,11 @@ var loadSchedule = function() {
         
         $(".container").append(timeBlock);
     }
-
     auditSchedule();
 }
 
-var saveSchedule = function() {
-    //save schedule to localstorage
-    localStorage.setItem("schedule", JSON.stringify(schedule));
-    console.log("Saving schedule");
-}
 
 var auditSchedule = function() {
-    console.log("Auditing schedule");
     //get current time
     now = moment().hour()
         
@@ -48,18 +40,16 @@ var auditSchedule = function() {
         time = parseInt(time);
         if (time === now ) {
             $(this).addClass("present");
-            console.log("present")
         } else if (time > now) {
             $(this).addClass("future");
-            console.log("future")
         } else {
             $(this).addClass("past");
-            console.log("past")
         }
     })
     
-    //loop timeblocks and update colors (attr)
-    //loop schedule and update <p>
+    $.each(schedule, function(index) {
+        $(".description[data-id*="+schedule[index].id+"]").text(schedule[index].text)
+    });
 
 }
 
@@ -71,7 +61,6 @@ loadSchedule();
 
 //click on description
 $(".time-block").on("click", "p", function()  {
-    console.log("click")
     var id = $(this).attr("data-id");
     
     var text = $(this)
@@ -85,36 +74,44 @@ $(".time-block").on("click", "p", function()  {
   
     $(this).replaceWith(textInput);
     textInput.trigger("focus");
-        
 }); 
 
 //click on save
 $(".saveBtn").click(function() {
+    
     var id = $(this).attr("data-id");
     var text = $("#"+id)
-    .val()
-    .trim();
+        .val()
+        .trim();
     
-    //save to local storage
-    schedule.push({
-        id: id,
-        text: text,
-    })
-    
-
     var newDescription = $('<p>')
         .addClass("col-10 description")
         .attr("data-id",id)
         .text(text);
             
-    //change from textarea to p
-    $("#"+id).replaceWith(newDescription);
-    
-    saveSchedule();
+   
+    var update = ""
+    $.each(schedule, function(index) {
+        if (schedule[index].id === id) {
+            schedule[index].text = text;
+            update= "Updated";
+        }
+    });
+    if (update === ""){
+        //save to local storage
+        schedule.push({
+            id: id,
+            text: text
+        })
+    }
+     //change from textarea to p
+     $("#"+id).replaceWith(newDescription);
+   
+    localStorage.setItem("schedule", JSON.stringify(schedule));
     
 })
 
 //timer interval that check cevery X min and audit schedule
 setInterval(function () {
     auditSchedule();
-}, 900000);
+}, 60000);
