@@ -1,46 +1,65 @@
 var schedule = [];
 
-
-
 var loadSchedule = function() {
     console.log("Loading schedule");
     schedule = JSON.parse(localStorage.getItem("schedule"));
     if (!schedule) {
         schedule = [];
     } 
-
     //build html
     for (var i = 9; i<18; i++){
         startDay = moment().hour(i).format('hA');
         var timeBlock = $("<div>")
             .addClass("row time-block")
-            .attr("data-id",startDay);
+            .attr("data-id",i);
         var hour = $("<div>")
             .addClass("col-1 hour")
-            .attr("data-id",startDay)
+            .attr("data-id",i)
             .text(startDay);
         var description = $("<p>")
             .addClass("col-10 description")
-            .attr("data-id",startDay);
+            .attr("data-id",i);
         var saveBtn = $("<div>")
             .addClass("col-1 saveBtn material-icons")
-            .attr("data-id",startDay)
+            .attr("data-id",i)
             .text("save");
         timeBlock.append(hour, description,saveBtn);
         
         $(".container").append(timeBlock);
     }
+
     auditSchedule();
 }
 
 var saveSchedule = function() {
+    //save schedule to localstorage
+    localStorage.setItem("schedule", JSON.stringify(schedule));
     console.log("Saving schedule");
-    //save var to localstorage
 }
 
 var auditSchedule = function() {
     console.log("Auditing schedule");
-    //update colors and data from local storage
+    //get current time
+    now = moment().hour()
+        
+    //update colors (attr) and data from local storage
+    $(".container").children().each(function() {
+        time = $(this).attr("data-id")
+        time = parseInt(time);
+        if (time === now ) {
+            $(this).addClass("present");
+            console.log("present")
+        } else if (time > now) {
+            $(this).addClass("future");
+            console.log("future")
+        } else {
+            $(this).addClass("past");
+            console.log("past")
+        }
+    })
+    
+    //loop timeblocks and update colors (attr)
+    //loop schedule and update <p>
 
 }
 
@@ -77,16 +96,22 @@ $(".saveBtn").click(function() {
     .trim();
     
     //save to local storage
+    schedule.push({
+        id: id,
+        text: text,
+    })
+    
+
     var newDescription = $('<p>')
         .addClass("col-10 description")
         .attr("data-id",id)
         .text(text);
-             
-    
+            
     //change from textarea to p
     $("#"+id).replaceWith(newDescription);
     
     saveSchedule();
+    
 })
 
 //timer interval that check cevery X min and audit schedule
